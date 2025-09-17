@@ -25,6 +25,20 @@ public class Curso {
     private int cargaHoraria;
     private Date dataInicio;
 
-//    @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<Disciplina> disciplinas = new ArrayList<>();
+    @OneToMany(
+            mappedBy = "curso",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Disciplina> disciplinas = new ArrayList<>();
+
+    public void addDisciplina(Disciplina disciplina) {
+        this.disciplinas.add(disciplina);
+        disciplina.setCurso(this);
+    }
+
+    public void removeDisciplina(Disciplina disciplina) {
+        this.disciplinas.remove(disciplina);
+        disciplina.setCurso(null);
+    }
 }

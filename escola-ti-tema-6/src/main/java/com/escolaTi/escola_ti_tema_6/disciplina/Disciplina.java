@@ -1,6 +1,7 @@
 package com.escolaTi.escola_ti_tema_6.disciplina;
 
 import com.escolaTi.escola_ti_tema_6.curso.Curso;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class Disciplina {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id")
+    @JsonIgnore
     private Curso curso;
 
 }

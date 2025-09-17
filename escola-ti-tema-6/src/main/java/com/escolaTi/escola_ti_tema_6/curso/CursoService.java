@@ -1,8 +1,7 @@
 package com.escolaTi.escola_ti_tema_6.curso;
-import com.escolaTi.escola_ti_tema_6.disciplina.DisciplinaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -11,19 +10,45 @@ import java.util.List;
 public class CursoService {
 
     private final CursoRepository cursoRepository;
-    private final DisciplinaRepository disciplinaRepository;
 
-    public void criarCurso(Curso curso) {
-        cursoRepository.save(curso);
+    @Transactional
+    public Curso criarCurso(Curso curso){
+        curso.getDisciplinas().forEach(disciplina -> disciplina.setCurso(curso));
+        return cursoRepository.save(curso);
     }
 
-    public List<Curso> listarCursos(){
-       return cursoRepository.findAll();
+    @Transactional
+    public List<Curso> listarTodos() {
+        return cursoRepository.findAll();
     }
 
-    public void addDisciplina(String nomeDisciplina){
-        disciplinaRepository.findByNome(nomeDisciplina).orElseThrow(
-                () -> new RuntimeException("Disciplina não encontrado")
-        );
+    @Transactional
+    public Curso buscarPorId(Long id) {
+        return cursoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Curso não encontrado com o ID: " + id));
+    }
+
+    @Transactional
+    public Curso atualizarCurso(Long id, Curso cursoDetalhes) {
+        Curso cursoExistente = buscarPorId(id);
+
+        cursoExistente.setNome(cursoDetalhes.getNome());
+        cursoExistente.setCargaHoraria(cursoDetalhes.getCargaHoraria());
+        cursoExistente.setDataInicio(cursoDetalhes.getDataInicio());
+
+        cursoExistente.getDisciplinas().clear();
+        cursoDetalhes.getDisciplinas().forEach(disciplina -> {
+            cursoExistente.addDisciplina(disciplina);
+        });
+
+        return cursoRepository.save(cursoExistente);
+    }
+
+    @Transactional
+    public void deletarCurso(Long id) {
+        if (!cursoRepository.existsById(id)) {
+            throw new RuntimeException("Curso não encontrado com o ID: " + id);
+        }
+        cursoRepository.deleteById(id);
     }
 }
